@@ -29,7 +29,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
                   <Link href="/">henriques.</Link>
                 <nav className="ml-auto text-sm font-medium space-x-6 flex items-center">
                   <Link href="/sobre">sobre</Link>
-                  <Link href="/projeto-henri">projeto henri</Link>
+                  <Link href="/setup">setup</Link>
                   <ModeToggle />
                 </nav>
               </div>

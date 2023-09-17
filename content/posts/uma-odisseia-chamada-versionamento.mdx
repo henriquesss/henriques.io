@@ -1,0 +1,120 @@
+---
+title: Uma odisseia chamada versionamento
+description: Atualizando o react-native da versão 0.68.2 para 0.72.4
+date: "2023-09-16"
+---
+
+Eaí, tudo bem? Espero que sim. Recomendo que pegue um café por quê o título não é odisseia por acaso.
+
+obs: esse texto ainda ta em revisão
+
+Recentemente enquanto escrevo esse texto, passei por uma situação muito comum na vida de qualquer desenvolvedor: atualizar um projeto parado a alguns meses e lidar com a atualização e versionamento de pacotes.
+Porém, eu não contava que esse processo seria tão pesado quanto imaginei.
+E como forma de me ajudar a organizar, utilizei o bloco de notas pra ir criando uma 'linha do tempo' de tentativas e links úteis durante o processo.
+Antes de mostrar pra vocês essas anotações, quero deixar todo mundo contextualizado: <br/>
+
+- <strong>objetivo</strong>: subir uma nova versão de um app feito em React Native para a Play Store
+- <strong>entrave</strong>: a Google não aceitava o API Level abaixo de 33
+- <strong>task</strong>: atualizar um projeto feito em React Native da versão 0.68.2 para 0.72.4
+- <strong>nomenclatura</strong>: vou tratar o nome do app como 'updatedApp'
+
+obs: cada teste de build ou start era algo em torno de 15-20 minutos, ou seja, 3-4 builds por hora, 24 tentativas por dia (em um dia de 8 horas trabalhadas)<br/>
+
+Sabendo disso, bora lá:
+
+<hr/>
+
+## Começando do começo
+
+Rodei um `react-native-upgrade` e na hora de atualizar os arquivos nativos, utilizei o [Upgrade helper](https://react-native-community.github.io/upgrade-helper/?from=0.68.2&to=0.72.4 )
+fiz isso pois após atualizar pois quebrou muita coisa (e era esperado)<br/>
+
+O problema agora era esse: <br/>
+```html
+    Failed to apply plugin 'com.android.internal.version-check'.
+- Minimum supported Gradle version is 7.5. Current version is 7.3.3.
+- If using the gradle wrapper, try editing the distributionUrl in /updated-app/android/gradle/wrapper/gradle-wrapper.properties to gradle-7.5-all.zip
+```
+
+
+Após corrigir esses problemas com o Upgrade Helper e com a atualização manual do [expo-modules](https://docs.expo.dev/bare/installing-expo-modules/)
+surge esse problema: <br/>
+```html
+Uncaught Error Error: [ios.xcodeproj]: withIosXcodeprojBaseMod: Cannot find module './parse'
+Require stack:
+- ../.npm/_npx/d80a5a2fd0b43bdc/node_modules/install-expo-modules/build/index.js
+```
+
+Depois dessa correção, surge esse erro:
+```html
+Build file '.../updated-app/node_modules/expo-application/android/build.gradle' line: 40
+```
+
+Logo depois surge o erro `classifier undefined` e pra resolver achei esse cara aqui pra resolver o problema [https://github.com/expo/fyi/blob/main/expo-modules-gradle8-migration.md](https://github.com/expo/fyi/blob/main/expo-modules-gradle8-migration.md)<br/>
+
+Não rolou, então usei o `npx expo-doctor` (listou bem direitinho as libs que eu precisava atualizar)<br/>
+
+Rodei o comando onde o próprio expo-doctor avalia e instala as libs de acordo (expo doctor --fix-dependencies)<br/>
+
+Novo erro:
+> A problem occurred configuring project ':app'. Cannot query the value of extension 'react' property 'entryFile' because it has no value available.<br/>
+
+Junto a esse erro, ao rodar o expo-doctor ele apontava que eu estava utilizando uma versão x do `@expo/config-plugins` e queria a versão y, sendo que eu tava com a versao x<br/>
+
+Depois de perguntar pro chatGPT como resolver essa questão do @expo/config-plugins, excluí a `node_modules` e instalei tudo de novo com yarn (nada aconteceu feijoada)<br/>
+
+Após debugar com `./gradlew assembleRelease --scan`, vi que era algo em volta desse `expo-updates-gradle-plugin`.<br/>
+
+Insight: entendi, a versão do `@expo/config-plugin` que tenho no projeto ta correta, porém, outras libs que possuem ela como dependência estão usando versões anteriores<br/>
+
+Atualizei a versão das dependências de cada uma das dependências no `yarn.lock` e o `expo-doctor` apontou mais nada, porém, segue o mesmo erro ao rodar `yarn android`
+> (Cannot query the value of extension 'react' property 'entryFile' because it has no value available)
+
+Entrei no arquivo `android/app/build.gradle` e descomentei a linha com o 'entryFile' e quaaaase foi (o build foi em 100% da configuração mas crashou na execução)
+
+## Atualizando com o expo update
+Descobri que tava fazendo todo esse processo pelo `react-native upgrade`, que tende a ser mais complicado mesmo [https://www.youtube.com/watch?v=Y9ihngV85w8](https://www.youtube.com/watch?v=Y9ihngV85w8) então bora tentar com o `expo update`<br/>
+
+Clonei novamente o projeto pra deixar as duas tentativas (expo update e react native upgrade) em pastas diferentes<br/>
+
+Depois de rodar o `expo update`, rodei um `npx expo install --fix` e retornei pro mesmo problema com o `@expo/config-plugins`<br/>
+
+Observação: muito provavelmente são esses caras que tão ferrando o rolê<br/>
+- react-native-iap: "^12.10.7"
+- @react-native-firebase/app: "^16.4.6"
+
+Após avaliar o código, percebi que a lib `react-native-iap`, então comentei todas as menções a essa lib na codebase e a build funcionou.<br/>
+
+Agora ao rodar `yarn android` para desenvolvedor, rolou isso:
+```html
+    1.Error: No Firebase App '[DEFAULT]' has been created - call firebase.initializeApp(), js engine: hermes
+    2.Invariant Violation: "updatedapp" has not been registered. This can happen if: Metro (the local dev server) is run from the wrong folder. Check if Metro is running, stop it and restart it in the current project.
+    3.A module failed to load due to an error and `AppRegistry.registerComponent` wasn't called., js engine: hermes
+```
+
+Dos erros acima, o problema real é o número 2, onde o nome do app oficialmente é `com.Updatedapp` e to trabalhando com `com.updatedapp` (acabei não percebendo isso nos primeiros passos do update)
+e pra resolver isso, segui esse post (https://stackoverflow.com/questions/74774494/how-to-change-android-package-name-in-react-native-0-70-and-above)[https://stackoverflow.com/questions/74774494/how-to-change-android-package-name-in-react-native-0-70-and-above]<br/>
+
+Após atualizar o package name nesses locais, tive muitos problemas envolvendo o updatedapp.BuildConfig, preciso descobrir onde ele ta ou como gerar ele. Tentei com.updatedapp.BuildConfig no `MainApplication.java` e rolou o `./gradlew assembleRelease`. Agora, ao rodar a aplicação com `yarn android`, essa é mensagem:<br/>
+
+```
+- Invariant Violation: "updatedapp" has not been registered. This can happen if:
+* Metro (the local dev server) is run from the wrong folder. Check if Metro is running, stop it and restart it in the current project.
+```
+
+Depois de muita pesquisa, foquei na finaleira desse post aqui (https://github.com/wix/react-native-navigation/issues/5520)[https://github.com/wix/react-native-navigation/issues/5520] eu fui mudando os nomes na MainActivity.java
+
+## A fé começa a ser abalada
+Já é o quinto dia debugando isso, o foco já não é mais o mesmo.<br/>
+
+Já sem opções e sabendo que tinha resolver essa questão do `packageName`, decidi olhar o código do app de produção e comparar com o app que estava atualizando.<br/>
+
+Achei uma diferença no `MainActivity.java` da minha versão, onde estava como "updatedApp" mas era só manter "main":
+```java
+    @Override
+    protected String getMainComponentName() {
+        return "main";
+    }
+```
+
+e sim, funcionou.
