@@ -6,55 +6,54 @@ date: "2023-09-16"
 
 Eaí, tudo bem? Espero que sim. Recomendo que pegue um café por quê o título não é odisseia por acaso.
 
-obs: esse texto ainda ta em revisão
-
 Recentemente enquanto escrevo esse texto, passei por uma situação muito comum na vida de qualquer desenvolvedor: atualizar um projeto parado a alguns meses e lidar com a atualização e versionamento de pacotes.
-Porém, eu não contava que esse processo seria tão pesado quanto imaginei.
+Porém, eu não contava que esse processo seria mais pesado do que eu imaginava.
 E como forma de me ajudar a organizar, utilizei o bloco de notas pra ir criando uma 'linha do tempo' de tentativas e links úteis durante o processo.
 Antes de mostrar pra vocês essas anotações, quero deixar todo mundo contextualizado: <br/>
 
-- <strong>objetivo</strong>: subir uma nova versão de um app feito em React Native para a Play Store
-- <strong>entrave</strong>: a Google não aceitava o API Level abaixo de 33
-- <strong>task</strong>: atualizar um projeto feito em React Native da versão 0.68.2 para 0.72.4
-- <strong>nomenclatura</strong>: vou tratar o nome do app como 'updatedApp'
+- <strong>Objetivo</strong>: Subir uma nova versão de um app feito em React Native para a Play Store
+- <strong>Entrave</strong>: A Google não aceitava o API Level abaixo de 33 (ou Android abaixo de 13)
+- <strong>Solução</strong>: Atualizar um projeto feito em React Native da versão 0.68.2 para 0.72.4
+- <strong>Nomenclatura</strong>: Vou tratar o nome do app como 'updatedApp'
 
 obs: cada teste de build ou start era algo em torno de 15-20 minutos, ou seja, 3-4 builds por hora, 24 tentativas por dia (em um dia de 8 horas trabalhadas)<br/>
 
 Sabendo disso, bora lá:
-
 <hr/>
 
-## Começando do começo
+## Atualizando com react-native-upgrade
 
-Rodei um `react-native-upgrade` e na hora de atualizar os arquivos nativos, utilizei o [Upgrade helper](https://react-native-community.github.io/upgrade-helper/?from=0.68.2&to=0.72.4 )
-fiz isso pois após atualizar pois quebrou muita coisa (e era esperado)<br/>
+Depois de pesquisar como adequar meu app a esse novo Android, cheguei a algumas soluções mas não consegui fugir de ter que atualizar o próprio `react-native`.
+Talvez houvesse outras formas de resolver, mas a decisão foi tomada, então vamos seguir.
 
-O problema agora era esse: <br/>
+Rodei um `react-native-upgrade` e como sabia que teria que atualizar uma série de arquivos nativos, utilizei o [Upgrade helper](https://react-native-community.github.io/upgrade-helper/?from=0.68.2&to=0.72.4) como guia. 
+Essa ferramenta foi uma mão na roda, obrigado comunidade 🙏<br/>
+
+Depois de implementar as muitas correções arquivo por aquivo, o primeiro erro que surgiu foi esse: <br/>
 ```html
     Failed to apply plugin 'com.android.internal.version-check'.
 - Minimum supported Gradle version is 7.5. Current version is 7.3.3.
 - If using the gradle wrapper, try editing the distributionUrl in /updated-app/android/gradle/wrapper/gradle-wrapper.properties to gradle-7.5-all.zip
 ```
 
-
-Após corrigir esses problemas com o Upgrade Helper e com a atualização manual do [expo-modules](https://docs.expo.dev/bare/installing-expo-modules/)
-surge esse problema: <br/>
+Após corrigir me guiando pelo próprio Upgrade Helper e com a atualização manual do [expo-modules](https://docs.expo.dev/bare/installing-expo-modules/)
+surge esse outro problema: <br/>
 ```html
 Uncaught Error Error: [ios.xcodeproj]: withIosXcodeprojBaseMod: Cannot find module './parse'
 Require stack:
 - ../.npm/_npx/d80a5a2fd0b43bdc/node_modules/install-expo-modules/build/index.js
 ```
 
-Depois dessa correção, surge esse erro:
-```html
-Build file '.../updated-app/node_modules/expo-application/android/build.gradle' line: 40
-```
+Depois dessa correção(que não lembro como foi), surge outro:
+>Build file '.../updated-app/node_modules/expo-application/android/build.gradle' line: 40
 
-Logo depois surge o erro `classifier undefined` e pra resolver achei esse cara aqui pra resolver o problema [https://github.com/expo/fyi/blob/main/expo-modules-gradle8-migration.md](https://github.com/expo/fyi/blob/main/expo-modules-gradle8-migration.md)<br/>
+Como esse foi mais específico, a correção foi mais fácil, me levando a esse aviso: `classifier undefined`
+Durante a pesquisa encontrei esse cara aqui pra resolver o problema [https://github.com/expo/fyi/blob/main/expo-modules-gradle8-migration.md](https://github.com/expo/fyi/blob/main/expo-modules-gradle8-migration.md)<br/>
 
-Não rolou, então usei o `npx expo-doctor` (listou bem direitinho as libs que eu precisava atualizar)<br/>
+## Nesse ponto tive que pedir ajuda pro Doutor
+Como o último fix não rolou, então usei o `npx expo-doctor` (lista exatamente as libs que precisam ser atualizadas)<br/>
 
-Rodei o comando onde o próprio expo-doctor avalia e instala as libs de acordo (expo doctor --fix-dependencies)<br/>
+Rodei o comando onde o próprio expo-doctor avalia e instala as libs de acordo (`expo doctor --fix-dependencies`)<br/>
 
 Novo erro:
 > A problem occurred configuring project ':app'. Cannot query the value of extension 'react' property 'entryFile' because it has no value available.<br/>
@@ -73,19 +72,19 @@ Atualizei a versão das dependências de cada uma das dependências no `yarn.loc
 Entrei no arquivo `android/app/build.gradle` e descomentei a linha com o 'entryFile' e quaaaase foi (o build foi em 100% da configuração mas crashou na execução)
 
 ## Atualizando com o expo update
-Descobri que tava fazendo todo esse processo pelo `react-native upgrade`, que tende a ser mais complicado mesmo [https://www.youtube.com/watch?v=Y9ihngV85w8](https://www.youtube.com/watch?v=Y9ihngV85w8) então bora tentar com o `expo update`<br/>
+Descobri que tava fazendo todo esse processo pelo `react-native upgrade`, que tende a ser mais complicado mesmo [https://www.youtube.com/watch?v=Y9ihngV85w8](https://www.youtube.com/watch?v=Y9ihngV85w8) então bora tentar com o `expo update`.<br/>
 
-Clonei novamente o projeto pra deixar as duas tentativas (expo update e react native upgrade) em pastas diferentes<br/>
+Clonei novamente o projeto pra deixar as duas tentativas (expo update e react native upgrade) em pastas diferentes.<br/>
 
 Depois de rodar o `expo update`, rodei um `npx expo install --fix` e retornei pro mesmo problema com o `@expo/config-plugins`<br/>
 
-Observação: muito provavelmente são esses caras que tão ferrando o rolê<br/>
+Observação: muito provavelmente são esses caras que estavam ferrando o rolê<br/>
 - react-native-iap: "^12.10.7"
 - @react-native-firebase/app: "^16.4.6"
 
 Após avaliar o código, percebi que a lib `react-native-iap`, então comentei todas as menções a essa lib na codebase e a build funcionou.<br/>
 
-Agora ao rodar `yarn android` para desenvolvedor, rolou isso:
+Agora ao rodar `yarn android` para desenvolvedor, temos isso:
 ```html
     1.Error: No Firebase App '[DEFAULT]' has been created - call firebase.initializeApp(), js engine: hermes
     2.Invariant Violation: "updatedapp" has not been registered. This can happen if: Metro (the local dev server) is run from the wrong folder. Check if Metro is running, stop it and restart it in the current project.
@@ -97,12 +96,12 @@ e pra resolver isso, segui esse post (https://stackoverflow.com/questions/747744
 
 Após atualizar o package name nesses locais, tive muitos problemas envolvendo o updatedapp.BuildConfig, preciso descobrir onde ele ta ou como gerar ele. Tentei com.updatedapp.BuildConfig no `MainApplication.java` e rolou o `./gradlew assembleRelease`. Agora, ao rodar a aplicação com `yarn android`, essa é mensagem:<br/>
 
-```
+```html
 - Invariant Violation: "updatedapp" has not been registered. This can happen if:
 * Metro (the local dev server) is run from the wrong folder. Check if Metro is running, stop it and restart it in the current project.
 ```
 
-Depois de muita pesquisa, foquei na finaleira desse post aqui (https://github.com/wix/react-native-navigation/issues/5520)[https://github.com/wix/react-native-navigation/issues/5520] eu fui mudando os nomes na MainActivity.java
+Depois de muita pesquisa, foquei na finaleira desse post aqui <a href="https://github.com/wix/react-native-navigation/issues/5520">https://github.com/wix/react-native-navigation/issues/5520</a> eu fui mudando os nomes na `MainActivity.java`
 
 ## A fé começa a ser abalada
 Já é o quinto dia debugando isso, o foco já não é mais o mesmo.<br/>
@@ -117,4 +116,22 @@ Achei uma diferença no `MainActivity.java` da minha versão, onde estava como "
     }
 ```
 
-e sim, funcionou.
+tive que adicionar mais um bloco no `andrid/app/build.gradle` pois tava gerando os bundles com as configurações de debug, e como meu app é assinado diretamente pela loja e não uma key física, criei mais um bloco de configurações para bundles de produção.
+
+e funcionou.
+
+## Hora de submeter o app pra Loja
+
+Sim, teve mais erros. A loja ainda apontava para um erro: "Não é possível lançar esta versão porque ela não permite que os usuários existentes façam a atualização para os novos pacotes de apps."
+
+Pra resolver isso, bastou eu ver qual a última versão do app eu tinha submetido para a loja e corrigir colocando uma versão maior no `build.gradle`.
+
+Agora sim, resolvido!
+
+## Conclusão
+
+Essa brincadeira levou 4 dias e meio, portanto, nunca subestimem uma atualização. Espero ter conseguido mostrar o lado não tão glamuroso da programação e também como foi surgindo a resolução de cada problema.
+
+
+Espero ter conseguido ajudar em algo,
+abraço!
