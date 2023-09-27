@@ -7,13 +7,13 @@ date: "2023-09-16"
 Eaí, tudo bem? Espero que sim. Recomendo que pegue um café por quê o título não é odisseia por acaso.
 
 Recentemente enquanto escrevo esse texto, passei por uma situação muito comum na vida de qualquer desenvolvedor: atualizar um projeto parado a alguns meses e lidar com a atualização e versionamento de pacotes.
-Porém, eu não contava que esse processo seria mais pesado do que eu imaginava.
+Porém, eu não contava que esse processo seria mais pesado do que eu imaginava (mais complexo que no ambiente web).
 E como forma de me ajudar a organizar, utilizei o bloco de notas pra ir criando uma 'linha do tempo' de tentativas e links úteis durante o processo.
 Antes de mostrar pra vocês essas anotações, quero deixar todo mundo contextualizado: <br/>
 
 - <strong>Objetivo</strong>: Subir uma nova versão de um app feito em React Native para a Play Store
-- <strong>Entrave</strong>: A Google não aceitava o API Level abaixo de 33 (ou Android abaixo de 13)
-- <strong>Solução</strong>: Atualizar um projeto feito em React Native da versão 0.68.2 para 0.72.4
+- <strong>Entrave</strong>: A Play Store não aceitava o API Level abaixo de 33 (ou Android abaixo de 13)
+- <strong>Solução</strong>: Atualizar o app feito em React Native da versão 0.68.2 para 0.72.4
 - <strong>Nomenclatura</strong>: Vou tratar o nome do app como 'updatedApp'
 
 obs: cada teste de build ou start era algo em torno de 15-20 minutos, ou seja, 3-4 builds por hora, 24 tentativas por dia (em um dia de 8 horas trabalhadas)<br/>
@@ -58,7 +58,7 @@ Rodei o comando onde o próprio expo-doctor avalia e instala as libs de acordo (
 Novo erro:
 > A problem occurred configuring project ':app'. Cannot query the value of extension 'react' property 'entryFile' because it has no value available.<br/>
 
-Junto a esse erro, ao rodar o expo-doctor ele apontava que eu estava utilizando uma versão x do `@expo/config-plugins` e queria a versão y, sendo que eu tava com a versao x<br/>
+Junto a esse erro, ao rodar o expo-doctor ele apontava que eu estava utilizando uma versão x do `@expo/config-plugins` e queria a versão y, sendo que eu tava com a versao y<br/>
 
 Depois de perguntar pro chatGPT como resolver essa questão do @expo/config-plugins, excluí a `node_modules` e instalei tudo de novo com yarn (nada aconteceu feijoada)<br/>
 
@@ -66,7 +66,7 @@ Após debugar com `./gradlew assembleRelease --scan`, vi que era algo em volta d
 
 Insight: entendi, a versão do `@expo/config-plugin` que tenho no projeto ta correta, porém, outras libs que possuem ela como dependência estão usando versões anteriores<br/>
 
-Atualizei a versão das dependências de cada uma das dependências no `yarn.lock` e o `expo-doctor` apontou mais nada, porém, segue o mesmo erro ao rodar `yarn android`
+Atualizei a versão das dependências de cada uma das dependências no `yarn.lock` e o `expo-doctor` não apontou mais nada, porém, segue o mesmo erro ao rodar `yarn android`
 > (Cannot query the value of extension 'react' property 'entryFile' because it has no value available)
 
 Entrei no arquivo `android/app/build.gradle` e descomentei a linha com o 'entryFile' e quaaaase foi (o build foi em 100% da configuração mas crashou na execução)
@@ -82,7 +82,7 @@ Observação: muito provavelmente são esses caras que estavam ferrando o rolê<
 - react-native-iap: "^12.10.7"
 - @react-native-firebase/app: "^16.4.6"
 
-Após avaliar o código, percebi que a lib `react-native-iap`, então comentei todas as menções a essa lib na codebase e a build funcionou.<br/>
+Após avaliar o código, percebi que a lib `react-native-iap` não tava sendo usada, então comentei todas as menções a essa lib na codebase e a build funcionou.<br/>
 
 Agora ao rodar `yarn android` para desenvolvedor, temos isso:
 ```html
@@ -104,7 +104,7 @@ Após atualizar o package name nesses locais, tive muitos problemas envolvendo o
 Depois de muita pesquisa, foquei na finaleira desse post aqui <a href="https://github.com/wix/react-native-navigation/issues/5520">https://github.com/wix/react-native-navigation/issues/5520</a> eu fui mudando os nomes na `MainActivity.java`
 
 ## A fé começa a ser abalada
-Já é o quinto dia debugando isso, o foco já não é mais o mesmo.<br/>
+Já é o início do quarto dia debugando isso, o foco já não é mais o mesmo.<br/>
 
 Já sem opções e sabendo que tinha resolver essa questão do `packageName`, decidi olhar o código do app de produção e comparar com o app que estava atualizando.<br/>
 
@@ -118,7 +118,7 @@ Achei uma diferença no `MainActivity.java` da minha versão, onde estava como "
 
 tive que adicionar mais um bloco no `andrid/app/build.gradle` pois tava gerando os bundles com as configurações de debug, e como meu app é assinado diretamente pela loja e não uma key física, criei mais um bloco de configurações para bundles de produção.
 
-e funcionou.
+e funcionou. 🙌
 
 ## Hora de submeter o app pra Loja
 
@@ -133,5 +133,5 @@ Agora sim, resolvido!
 Essa brincadeira levou 4 dias e meio, portanto, nunca subestimem uma atualização. Espero ter conseguido mostrar o lado não tão glamuroso da programação e também como foi surgindo a resolução de cada problema.
 
 
-Espero ter conseguido ajudar em algo,
+Nos vemos em breve,
 abraço!

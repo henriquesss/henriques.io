@@ -38,7 +38,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             <main>{children}</main>
 
             <div className="mt-16 flex justify-center items-center">
-              <p>Criado com muito café ☕ por <a href="https://github.com/henriquesss" target="_blank">Lucas Henriques</a></p>
+              <p>Criado com muito ☕ por <a href="https://github.com/henriquesss" target="_blank">Lucas Henriques</a></p>
             </div>
           </div>
           <Analytics />
