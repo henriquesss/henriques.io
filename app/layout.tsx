@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from 'next/image'
 import "./globals.css"
 import { Inter } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -9,7 +10,7 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
   title: "Lucas Henriques",
-  description: "Desenvolvedor de software e negócios por aí",
+  description: "Desenvolvedor de software",
 }
 
 interface RootLayoutProps {
@@ -26,7 +27,18 @@ export default function RootLayout({ children }: RootLayoutProps) {
           <div className="max-w-2xl mx-auto py-10 px-4">
             <header>
               <div className="flex items-center justify-between">
-                  <Link href="/">henriques.</Link>
+                  <Link href="/">
+                    <div className="rounded flex flex-row items-center">
+                      <Image
+                        src="https://avatars.githubusercontent.com/u/20709402?v=4"
+                        alt="logo"
+                        width={30}
+                        height={30}
+                        style={{ borderRadius: 20, marginRight: 5 }}
+                      />
+                      / henriques.
+                    </div>
+                  </Link>
                 <nav className="ml-auto text-sm font-medium space-x-6 flex items-center">
                   <Link href="/sobre">sobre</Link>
                   <Link href="/setup">setup</Link>
