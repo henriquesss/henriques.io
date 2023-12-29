@@ -1,0 +1,45 @@
+---
+title: Servless is the future?
+description: All you need to understund this beatifull and cheap architecture
+date: "2023-12-28"
+---
+
+Hey there 👋
+
+I finally came back and today, let's dive into the world of serverless architecture – a budget-friendly way to create software!
+
+First of all, the 'servless' word is not literally without server. Your application will had the frontend folder,
+but insted of have an api/server folder, this one will be in the cloud (with a platform such as Firebase, Supabase, Vercel, etc..)
+
+<img src="/servless.png" />
+
+So, you don't need to setup a backend enviroment in your machine to start to code. And don't need to change your infra to improve scalability.
+
+Like everything in life, we have good and bad sides, and i will describe the main points of this architecture and help you to make a better decision. Let's go?
+
+## Good points
+- Easy to start development
+- Less costs (you are only charged by services requests)
+- Allow developers to focus on the product, increasing productivity
+- The services/functions can adapt with the current number of requests, making the product scalable
+- Less configuration (comparing with a traditional client/server app our a container architecture)
+- More tools for security and analytics
+
+## Bad points
+- Depending of the vendor, you will face a Cold Start Latency (When a function hasn't been invoked for a while, there might be a delay in starting it up when a request comes in.)
+- Execution of batch processes or huge scripts can be stopped by the allowed time of your vendor. Keep your eyes open.
+- Moving away from a serverless architecture to a different provider or a different model might require significant code modifications, which can be challenging and time-consuming 
+
+## Use cases
+- Validate proof of concepts
+- Perfect for MVP's and escalability
+- Apps with closed escope or CRUD based
+- Apps with only one or two main endpoint(s) or resources
+
+## Future
+With the insane o growth of AI models, i believe in a future where more applications will be made with servless architecture, with a lot of 
+server/lambda functions and AI integrations, allowing to connect more and more services with less endpoints.
+
+I hope this content can help you,
+
+Bye 👋

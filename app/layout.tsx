@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
   title: "Lucas Henriques",
-  description: "Desenvolvedor de software",
+  description: "Software enginner",
 }
 
 interface RootLayoutProps {
@@ -40,8 +40,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
                     </div>
                   </Link>
                 <nav className="ml-auto text-sm font-medium space-x-6 flex items-center">
-                  <Link href="/sobre">sobre</Link>
-                  <Link href="/setup">setup</Link>
+                  <Link href="/about">about</Link>
+                  <Link href="/portfolio">portfolio</Link>
                   <ModeToggle />
                 </nav>
               </div>
@@ -50,7 +50,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             <main>{children}</main>
 
             <div className="mt-16 flex justify-center items-center">
-              <p>Criado com muito ☕ por <a href="https://github.com/henriquesss" target="_blank">Lucas Henriques</a></p>
+              <p>Created with a lot of ☕ by <a className="underline" href="https://github.com/henriquesss" target="_blank">Lucas Henriques</a></p>
             </div>
           </div>
           <Analytics />
