@@ -1,0 +1,96 @@
+---
+title: What you should know about react?
+description: Key concepts to improve your projects today
+date: "2024-02-10"
+---
+
+Hi There!
+
+With so much hype surrounding React, more developers are emerging for the technology every day, and with that, more knowledge is needed to stand out. And knowing this, I want to highlight some points that will add to your knowledge about react (and front end in general). But before start, let's clarify some things:
+
+React doesen't force you (yet) to use a predefined architectural pattern, allowing you to determine how the things works.
+
+So it's provide more flexibility for your project, but allow a lot of bad practices and 'work arounds'. So, how we can find the middle term, the healthy way of work with React? In my opinion, we need to study how the tool works deeply.
+Understunding the mechanics of the tool, you will plan a better architectures for you future projects, architectures who make sense, got it?
+
+Obs: In this article i will not talk about next.js
+
+Ok, whit all this said, let's get started:
+
+## What is JSX?
+Starting with the basics, JSX is the syntax to code for React, but you know how this works? And Why? It's the combination about Javascript and XML, where, under the hoods, Babel make the translation of this to create new elements like `<This>` or `<That>`. Look this tag comparison:
+
+<img src="/comparison.png" />
+
+
+where under the whoods this: <br/>
+`const element = <h1>Hello, world!</h1>`
+
+become this: <br/>
+`const element = React.createElement('h1', null, 'Hello, world!')`
+
+## How would you delay an api call untill a component has mounted?
+This is a common question asked in technicall interviews, and have a lot of answers. But to simplify, i will highlight these:
+1. Implement some logic at useEffect hook (carefull with the state parameters or recursive functions to not create a loop)
+2. Implement a 'UILoadnig' state to block UI while request was not finished (good practice, in the user perspective)
+
+## What is a High Order Component (HOC)?
+ Its just a pattern that allows you to reuse component logic (withRouter of react-router is a HOC)<br/>
+ HOCs are used to abstract and share logic between components without the need for duplication. They promote reusability and maintainability in React applications and are typically used  to encapsulate common logic such as data fetching, authentication, or handling certain lifecycle methods.<br/>
+ Tip: "with" is a prefix for HOC's
+
+## What is a Render Prop?
+ It's like a interface to change the behavior of some component (ex: Auth component it can be a register form or a login form, based on the context)<br/>
+<img src="/rp.png" />
+
+## When and how to write a custom hook?
+When: You need to share the same logic between multiple components, focusing on Reuse of logic and abstraction <br/>
+
+How: Just write a function, my friend.
+<img src="/custom-hook.jpeg" />
+
+Tip: "use" is the prefix for Hooks.<br/>
+Important stuff: Two components using the same hook DON'T SHARE STATE
+
+## What is HTTP State?
+In React, "HTTP state" typically refers to the state of data fetched from an external API using the HTTP protocol, such as RESTful APIs. This state encompasses various stages of the data lifecycle, including loading, success, and error states.<br/>
+
+A common lib to deal with this is [react-query](https://tanstack.com/query/v3/), 
+and this one have a plus: it allow you to create a cache layer for your requests, hitting the endpoints only when the data are modified, making the application more 'economic'.
+
+## How to use useMemo and useCallback properly?
+Use `useMemo()` to memorize a value that is computationally expensive to calculate and doesn't need to be recalculated every time the component re-renders.<br/>
+
+`const memoizedValue = useMemo(() => computeExpensiveValue(a, b), [a, b])`
+
+<hr/>
+
+Use `useCallback()` when you need to memoize a function, especially callback functions that are passed as props to child components.
+
+  `const memoizedCallback = useCallback(() => {
+    doSomethingWith(a, b)
+  }, [a, b])`
+
+<hr/>
+
+
+Always think in this guys when you need a large data UI or screen with a lot of operations, your performance thanks.
+
+If you want to go deep at React Hooks, i recomend this [video](https://www.youtube.com/watch?v=TNhaISOUy6Q)
+
+## Be carefull with LocalStorage
+LocalStorage came about around 2009 as a 5MB string based storage. But since that time, too many things have changed. Let’s cut to the chase with some bullet points since our attention spans are in disarray these days:
+- Limited storage (5mb)
+- Blocking nature (Operations on LocalStorage are synchronous and can block the main thread)
+- Data stored is accessible to any script from the same origin, making it vulnerable to cross-site scripting (XSS) attacks.
+- Unlike Cookies, Localstorage does not have built-in expiration mechanisms, so data can remain indefinitely unless explicitly cleared.
+- Only supports string key-value pairs, requiring serialization and deserialization for complex data types like objects or arrays.
+
+if you want to study more about localStorage, read [this](https://medium.com/@julienetienne/stop-using-localstorage-64a6d6805da8)
+
+<hr/>
+
+I hope this content help you well. Have too many other points to touch, but i thought the main points are here. If you think something has missing, feel free to 
+send me a mail or talk to me on Linkedin!
+
+Bye 👋
