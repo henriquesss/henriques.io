@@ -1,0 +1,39 @@
+---
+title: How to improve node.js perfomance with CPU profiling?
+description: A little study case to understund this concept in practice
+date: "2024-12-16"
+---
+
+<img src="/node-perfomance-cover.jpg"/>
+
+Hey everyone 👋
+
+You already thought how a node.js system works at Black Friday or Christmas weeks? And most important, how to improve performance to deal with huge loads of requests?
+
+To answer this, I start studying CPU profiling and JS performance at all (V8 relationship througth node.js), and the results are interesting.
+
+## What i have used?
+- The standard of the market for evaluate this is Open telemetry, but for this case, I used the native node.js module called `Inspector` (node.js version 22+)
+- For response time and load test I used Autocannon
+
+## What is the code?
+- I have a simple node.js web server with 2 routes, one using `lodash` to manipulate data (picture 1) and other using the native array methods of JavaScript (picture 2)
+- After getting data with inspector, I put this inside a file with `.cpuprofile` extension and upload him to <a href="https://discoveryjs.github.io/cpupro/" target="blank">https://discoveryjs.github.io/cpupro/</a> 
+
+## Results:
+
+<img src="/cpu-profiling-1.png"/>
+<i>Route 1: 2k requests in 10s</i>
+
+<img src="/cpu-profiling-2.png"/>
+<i>Route 2: 16k requests in 11s</i>
+
+Code: <a href="https://github.com/henriquesss/cpu-profiling-nodejs" target="blank">https://github.com/henriquesss/cpu-profiling-nodejs</a>
+
+## Used resources
+- this video: <a href="https://www.youtube.com/watch?v=3F1uBQVWNfE" target="blank">https://www.youtube.com/watch?v=3F1uBQVWNfE</a>
+- this docs(for basement): <a href="https://nodejs.org/docs/latest-v22.x/api/inspector.html" target="blank">https://nodejs.org/docs/latest-v22.x/api/inspector.html</a>
+
+<br/><br/>
+
+Bye 👋
